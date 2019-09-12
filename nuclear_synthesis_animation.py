@@ -1,7 +1,7 @@
 
 import random
 import numpy as np
-
+import sys
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -9,17 +9,24 @@ import matplotlib.animation as animation
 import random
 from matplotlib.colors import SymLogNorm
 
+if len(sys.argv) < 3:
+    print("usage: \npython3 nuclear_synthesis_animation.py reaction*.csv other_reaction.csv new_movie_file.mp4")
+    exit(1)
 
 fps = 1
 
-elements = open("elements.csv","r").read().split("\n")
-elements = [e.strip() for e in elements]
-elements.insert(0,"0")
+try:
+    elements = open("elements.csv","r").read().split("\n")
+    elements = [e.strip() for e in elements]
+    elements.insert(0,"0")
+except FileNotFoundError:
+    print("elements.csv support file not found")
+    exit(1)
 
 reaction_arrays = []
 reaction_jumps = []
-for i in range(1,6):
-    infile = open("reaction%da.csv" %(i))
+for i in range(1,len(sys.argv)-1):
+    infile = open(sys.argv[i],"r")
     ar = infile.read().split("\n")[1:]
     line = ar[0].split(",")
     reaction_jumps.append((int(float(line[0])),int(float(line[1]))))
@@ -30,6 +37,7 @@ for i in range(1,6):
     neutron_range = len(ar[-1])
     print(proton_range,neutron_range)
 # First set up the figure, the axis, and the plot element we want to animate
+
 fig = plt.figure(figsize=(8,7))
 tick = np.arange(proton_range)
 tick_val = [elements[i] for i in tick]
@@ -43,14 +51,7 @@ frame[1][0] = 10000
 im = plt.imshow(frame,norm = SymLogNorm(2), interpolation='none', cmap = "inferno",aspect='auto',\
                 vmin=0,origin = "lower")
 
-for p in range(proton_range):
-    for n in range(neutron_range):
-        reaction_arrays[3][p][n] = reaction_arrays[3][p][n]
-        print(reaction_arrays[3][p][n],end = ",")
-    print()
 
-print(reaction_arrays[3][17])
-print(len(reaction_arrays[1][17]))
 
 def transform(frame):
     new_frame = [[0 for _ in range(neutron_range)] for _ in range(proton_range)]
@@ -99,7 +100,7 @@ anim = animation.FuncAnimation(
                                )
 
 
-anim.save("test_anim2.mp4")
+anim.save(sys.argv[-1])
 print('Done!')
 
 # plt.show()
