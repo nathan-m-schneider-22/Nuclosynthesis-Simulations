@@ -1,23 +1,31 @@
 
 import random
 import numpy as np
-
+import sys
 import matplotlib
 import matplotlib.pyplot as plt
 
 import matplotlib.animation as animation
 
+if len(sys.argv)!= 3:
+    print("usage: \npython3 coreographed_animation.py dance_file.csv new_movie_file.mp4")
+    exit(1)
 
-filename = "dance3.csv"
+
+filename = sys.argv[1]
 file= open(filename,"r")
 ar = file.read().split("\n")[1:]
 ar = [line.split(",") for line in ar]
 
 fps = 1
-elements = open("elements.csv","r").read().split("\n")
-elements = [e.strip() for e in elements]
-elements.insert(0,"0")
-print(elements)
+try:
+    elements = open("elements.csv","r").read().split("\n")
+    elements = [e.strip() for e in elements]
+    elements.insert(0,"0")
+except FileNotFoundError:
+    print("elements.csv support file not found")
+    exit(1)
+
 
 frames= []
 num_frames = int(ar[-1][0])
@@ -40,7 +48,7 @@ a = frames[0]
 im = plt.imshow(a, interpolation='none', cmap = "inferno",aspect='auto', vmin=0, vmax=1,origin = "lower")
 
 def animate_func(i):
-    print(i)
+    print("frame:",i)
     if i==num_frames: exit(0)
 
     im.set_array(frames[i])
@@ -53,7 +61,6 @@ anim = animation.FuncAnimation(
                                )
 
 
-# anim.save("test_anim.mp4")
+anim.save(sys.argv[2])
 print('Done!')
 
-plt.show()
